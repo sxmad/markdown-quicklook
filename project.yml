@@ -1,6 +1,6 @@
 name: MarkdownQuickLook
 options:
-  bundleIdPrefix: com.markdownquicklook
+  bundleIdPrefix: com.xykong
   deploymentTarget:
     macOS: "11.0"
 targets:
@@ -9,7 +9,7 @@ targets:
     platform: macOS
     sources: [Sources/MarkdownQuickLook]
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: com.markdownquicklook.app
+      PRODUCT_BUNDLE_IDENTIFIER: com.xykong.Markdown
       INFOPLIST_FILE: Sources/MarkdownQuickLook/Info.plist
       INFOPLIST_KEY_NSMainStoryboardFile: ""
       CODE_SIGN_ENTITLEMENTS: Sources/MarkdownQuickLook/MarkdownQuickLook.entitlements
@@ -39,7 +39,7 @@ targets:
         name: WebRenderer
         type: folder
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: com.markdownquicklook.app.MarkdownPreview
+      PRODUCT_BUNDLE_IDENTIFIER: com.xykong.Markdown.QuickLook
       INFOPLIST_FILE: Sources/MarkdownPreview/Info.plist
       CODE_SIGN_ENTITLEMENTS: Sources/MarkdownPreview/MarkdownPreview.entitlements
       SKIP_INSTALL: YES
