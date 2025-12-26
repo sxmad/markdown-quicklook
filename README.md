@@ -1,6 +1,10 @@
-# Markdown QuickLook Extension
+# Markdown Preview Enhanced for macOS QuickLook
+
+[中文 README](#chinese-readme)
 
 A macOS QuickLook extension to beautifully preview Markdown files with full rendering, syntax highlighting, math formulas, and diagram support.
+
+**Inspired by and partially based on [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced).**
 
 ## Features
 
@@ -10,6 +14,12 @@ A macOS QuickLook extension to beautifully preview Markdown files with full rend
 - **Syntax Highlighting**: Code blocks with language-specific highlighting
 - **Emoji**: Full emoji support with `:emoji_name:` syntax
 - **Theme**: Automatic light/dark mode based on system settings
+
+## Acknowledgements
+
+This project is significantly inspired by and utilizes portions of [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced), created by Yiyi Wang (shd101wyy). We sincerely thank the author for their excellent work.
+
+This project complies with the University of Illinois/NCSA Open Source License under which `markdown-preview-enhanced` is distributed.
 
 ## Quick Start
 
@@ -23,7 +33,7 @@ Run the installation script:
 
 This will:
 1. Build the application with all dependencies
-2. Install it to `/Applications/MarkdownQuickLook.app`
+2. Install it to `/Applications/Markdown Preview Enhanced.app`
 3. Register it with the system
 4. Reset QuickLook cache
 
@@ -33,11 +43,11 @@ This will:
 
 1. **Right-click** (or Control+click) on any `.md` file in Finder
 2. Select **"Get Info"** (or press `⌘+I`)
-3. In the **"Open with:"** section, select **MarkdownQuickLook.app**
+3. In the **"Open with:"** section, select **Markdown Preview Enhanced.app**
 4. Click the **"Change All..."** button
 5. Confirm by clicking **"Continue"**
 
-This sets MarkdownQuickLook as the default application for all `.md` files, which is **required** for macOS to use our QuickLook extension.
+This sets Markdown Preview Enhanced as the default application for all `.md` files, which is **required** for macOS to use our QuickLook extension.
 
 ### Testing
 
@@ -49,126 +59,90 @@ qlmanage -p test-sample.md
 
 Or simply select any `.md` file in Finder and press Space (QuickLook shortcut).
 
-## Why Do I Need to Set a Default App?
-
-macOS QuickLook extensions (the modern App Extension type) only work when:
-1. The extension is embedded in an application
-2. That application is set as the default handler for the file type
-
-This is different from old-style `.qlgenerator` plugins that worked system-wide. The modern approach provides better security and isolation.
-
-## Manual Build
-
-If you prefer to build manually:
-
-```bash
-# 1. Build web renderer
-cd web-renderer
-npm install
-npm run build
-
-# 2. Generate Xcode project and build
-cd ..
-make app
-
-# 3. Install to Applications
-cp -R ~/Library/Developer/Xcode/DerivedData/MarkdownQuickLook-*/Build/Products/Debug/MarkdownQuickLook.app /Applications/
-
-# 4. Register with system
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/MarkdownQuickLook.app
-
-# 5. Reset QuickLook
-qlmanage -r && qlmanage -r cache
-```
-
-Then follow the **Critical Activation Step** above.
-
-## Troubleshooting
-
-### QuickLook shows white screen or plain text
-
-**Cause**: MarkdownQuickLook is not set as the default application for `.md` files.
-
-**Solution**: Follow the **Critical Activation Step** above.
-
-### "Open with Xcode" appears in QuickLook preview
-
-**Cause**: Xcode (or another app) is set as the default handler for `.md` files.
-
-**Solution**: 
-1. Right-click a `.md` file → Get Info
-2. Change "Open with:" to MarkdownQuickLook.app
-3. Click "Change All..."
-
-### Extension not appearing in qlmanage output
-
-**Cause**: The app hasn't been registered with LaunchServices.
-
-**Solution**:
-```bash
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/MarkdownQuickLook.app
-qlmanage -r && qlmanage -r cache
-```
-
-### After building, still shows old preview
-
-**Cause**: QuickLook cache needs to be cleared.
-
-**Solution**:
-```bash
-qlmanage -r && qlmanage -r cache
-```
-
-## Development
-
-### Project Structure
-
-- `Sources/MarkdownQuickLook/` - Main application wrapper
-- `Sources/MarkdownPreview/` - QuickLook Preview Extension
-- `web-renderer/` - Web-based Markdown rendering engine
-- `docs/` - Documentation
-- `project.yml` - XcodeGen project configuration
-
-### Building for Development
-
-```bash
-make app
-```
-
-### Testing
-
-```bash
-# Test with a specific file
-qlmanage -p test-sample.md
-
-# Debug extension loading
-qlmanage -m plugins | grep -i markdown
-
-# View system handler for .md files
-mdls -name kMDItemContentType test-sample.md
-```
-
-## Technical Details
-
-This is a modern macOS QuickLook Preview Extension (not the legacy `.qlgenerator` format). Key differences:
-
-- **App Extension**: Lives inside a host application
-- **Security**: Runs in a sandboxed environment
-- **Activation**: Requires being set as default handler
-- **Distribution**: Distributed as part of an app bundle
-
-The extension uses:
-- **Swift/WebKit**: For the macOS extension layer
-- **Node.js/Webpack**: For bundling the web renderer
-- **markdown-it**: Markdown parser
-- **Mermaid**: Diagram rendering
-- **KaTeX**: Math rendering
-- **highlight.js**: Syntax highlighting
-
 ## License
 
-MIT License - See LICENSE file for details.
+**Non-Commercial License**
 
-## Contributing
+This software is free for personal, educational, and non-commercial use only. Commercial use is strictly prohibited without prior written permission from the author. See the [LICENSE](LICENSE) file for details.
 
-Contributions are welcome! Please see our contributing guidelines in the docs folder.
+This project also respects the licenses of third-party libraries used, including:
+- `markdown-preview-enhanced` (NCSA License)
+- `markdown-it` (MIT License)
+- `highlight.js` (BSD-3-Clause License)
+- `katex` (MIT License)
+- `mermaid` (MIT License)
+
+---
+
+<a name="chinese-readme"></a>
+# Markdown Preview Enhanced macOS QuickLook 扩展
+
+macOS QuickLook 扩展，用于精美预览 Markdown 文件，支持完整渲染、语法高亮、数学公式和图表。
+
+**本项目受 [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced) 启发，并使用了其部分内容。**
+
+## 功能特性
+
+- **Markdown**: 支持 CommonMark + GFM (表格, 任务列表, 删除线)
+- **数学公式**: 支持 KaTeX 数学表达式 (`$E=mc^2$`)
+- **图表**: 支持 Mermaid 流程图、时序图等
+- **语法高亮**: 支持代码块语法高亮
+- **Emoji**: 支持 `:emoji_name:` 语法
+- **主题**: 跟随系统自动切换亮色/暗色模式
+
+## 致谢
+
+本项目在很大程度上受到 Yiyi Wang (shd101wyy) 创建的 [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced) 的启发，并使用了其中的部分内容。我们衷心感谢作者的杰出工作。
+
+本项目遵守 `markdown-preview-enhanced` 所使用的 University of Illinois/NCSA Open Source License 协议。
+
+## 快速开始
+
+### 安装
+
+运行安装脚本：
+
+```bash
+./install.sh
+```
+
+这将执行以下操作：
+1. 构建包含所有依赖的应用程序
+2. 将其安装到 `/Applications/Markdown Preview Enhanced.app`
+3. 向系统注册应用
+4. 重置 QuickLook 缓存
+
+### ⚠️ 关键激活步骤
+
+**必须完成此步骤，QuickLook 扩展才能正常工作：**
+
+1. 在 Finder 中 **右键点击** (或 Control+点击) 任意 `.md` 文件
+2. 选择 **"显示简介" (Get Info)** (或按 `⌘+I`)
+3. 在 **"打开方式 (Open with:)"** 部分，选择 **Markdown Preview Enhanced.app**
+4. 点击 **"全部更改... (Change All...)"** 按钮
+5. 点击 **"继续"** 确认
+
+这将把 Markdown Preview Enhanced 设置为所有 `.md` 文件的默认应用程序，这是 macOS 使用 QuickLook 扩展的**必要条件**。
+
+### 测试
+
+完成上述激活步骤后，测试扩展：
+
+```bash
+qlmanage -p test-sample.md
+```
+
+或者直接在 Finder 中选中任意 `.md` 文件并按空格键 (QuickLook快捷键)。
+
+## 许可协议
+
+**非商业许可协议**
+
+本软件仅供个人、教育和非商业用途免费使用。未经作者事先书面许可，严禁用于商业用途。详情请参阅 [LICENSE](LICENSE) 文件。
+
+本项目同时遵守所使用的第三方库的许可协议，包括：
+- `markdown-preview-enhanced` (NCSA License)
+- `markdown-it` (MIT License)
+- `highlight.js` (BSD-3-Clause License)
+- `katex` (MIT License)
+- `mermaid` (MIT License)
