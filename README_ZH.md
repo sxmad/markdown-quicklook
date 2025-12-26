@@ -1,4 +1,4 @@
-# Markdown Preview Enhanced macOS QuickLook 扩展
+# Markdown Preview Enhanced for macOS QuickLook 扩展
 
 [English README](README.md)
 
@@ -25,9 +25,27 @@ macOS QuickLook 扩展，用于精美预览 Markdown 文件，支持完整渲染
 
 ### 安装
 
-运行安装脚本：
+#### 方法 1: Homebrew (推荐)
 
 ```bash
+brew tap xykong/tap
+brew install --cask markdown-preview-enhanced
+```
+
+#### 方法 2: 手动安装 (DMG)
+
+1. 从 [Releases](https://github.com/xykong/markdown-quicklook/releases) 页面下载最新的 `.dmg` 文件。
+2. 打开 `.dmg` 文件。
+3. 将 **Markdown Preview Enhanced.app** 拖入 **Applications** (应用程序) 文件夹。
+
+#### 方法 3: 源码构建 (开发者)
+
+```bash
+# 克隆仓库
+git clone https://github.com/xykong/markdown-quicklook.git
+cd markdown-quicklook
+
+# 运行安装脚本
 ./install.sh
 ```
 

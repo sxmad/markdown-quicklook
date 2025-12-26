@@ -25,13 +25,31 @@ This project complies with the University of Illinois/NCSA Open Source License u
 
 ### Installation
 
-Run the installation script:
+#### Method 1: Homebrew (Recommended)
 
 ```bash
+brew tap xykong/tap
+brew install --cask markdown-preview-enhanced
+```
+
+#### Method 2: Manual Installation (DMG)
+
+1. Download the latest `.dmg` from the [Releases](https://github.com/xykong/markdown-quicklook/releases) page.
+2. Open the `.dmg` file.
+3. Drag **Markdown Preview Enhanced.app** to your **Applications** folder.
+
+#### Method 3: Build from Source (For Developers)
+
+```bash
+# Clone the repository
+git clone https://github.com/xykong/markdown-quicklook.git
+cd markdown-quicklook
+
+# Run installation script
 ./install.sh
 ```
 
-This will:
+This script will:
 1. Build the application with all dependencies
 2. Install it to `/Applications/Markdown Preview Enhanced.app`
 3. Register it with the system

@@ -18,3 +18,6 @@ generate: build_renderer
 
 app: generate
 	xcodebuild -project MarkdownPreviewEnhanced.xcodeproj -scheme Markdown -destination 'platform=macOS' build
+
+dmg:
+	./scripts/create_dmg.sh
