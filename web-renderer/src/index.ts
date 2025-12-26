@@ -14,26 +14,10 @@ function logToSwift(message: string) {
     }
 }
 
-logToSwift("JS: Entry point reached! Initializing...");
-
 // Global error handler for debugging
 window.onerror = function(message, source, lineno, colno, error) {
     const errorMsg = `JS Error: ${message} at ${source}:${lineno}`;
     logToSwift(errorMsg);
-
-    const errorDiv = document.createElement('div');
-    errorDiv.style.color = 'red';
-    errorDiv.style.backgroundColor = '#ffeeee';
-    errorDiv.style.padding = '20px';
-    errorDiv.style.border = '1px solid red';
-    errorDiv.style.margin = '20px';
-    errorDiv.style.zIndex = '9999';
-    errorDiv.style.position = 'relative';
-    errorDiv.innerHTML = `<h3>JS Error</h3><p><strong>Message:</strong> ${message}</p><p><strong>Source:</strong> ${source}:${lineno}</p>`;
-    if (error && error.stack) {
-        errorDiv.innerHTML += `<pre>${error.stack}</pre>`;
-    }
-    document.body.prepend(errorDiv);
 };
 
 import 'github-markdown-css/github-markdown.css';
@@ -46,7 +30,7 @@ import hljs from 'highlight.js';
 
 // Import MarkdownIt plugins
 // @ts-ignore
-import mk from 'markdown-it-katex';
+import mk from '@iktakahiro/markdown-it-katex';
 // @ts-ignore
 import emoji from 'markdown-it-emoji';
 // @ts-ignore
@@ -60,15 +44,12 @@ import sub from 'markdown-it-sub';
 // @ts-ignore
 import sup from 'markdown-it-sup';
 
-logToSwift("JS: Imports loaded");
-
 // Configure Mermaid
 try {
     mermaid.initialize({
         startOnLoad: false,
         theme: 'default'
     });
-    logToSwift("JS: Mermaid initialized");
 } catch (e) {
     logToSwift("JS: Mermaid init failed: " + e);
 }
@@ -103,7 +84,6 @@ try {
     md.use(sub);
     md.use(sup);
     
-    logToSwift("JS: MarkdownIt initialized");
 } catch (e) {
     logToSwift("JS: MarkdownIt init failed: " + e);
 }
@@ -117,7 +97,6 @@ declare global {
 
 // Render function called by Swift
 window.renderMarkdown = function (text: string) {
-    logToSwift("JS: renderMarkdown called with length: " + text.length);
     const outputDiv = document.getElementById('markdown-preview');
     if (!outputDiv) {
         logToSwift("JS Error: markdown-preview element not found");
@@ -151,10 +130,7 @@ window.renderMarkdown = function (text: string) {
             querySelector: '.mermaid'
         });
         
-        logToSwift("JS: Render complete");
     } catch (e) {
         logToSwift("JS Error during render: " + e);
     }
 };
-
-logToSwift('JS: Markdown Renderer Fully Loaded');
