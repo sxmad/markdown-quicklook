@@ -15,12 +15,6 @@ macOS QuickLook 扩展，用于精美预览 Markdown 文件，支持完整渲染
 - **Emoji**: 支持 `:emoji_name:` 语法
 - **主题**: 跟随系统自动切换亮色/暗色模式
 
-## 致谢
-
-本项目在很大程度上受到 Yiyi Wang (shd101wyy) 创建的 [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced) 的启发，并使用了其中的部分内容。我们衷心感谢作者的杰出工作。
-
-本项目遵守 `markdown-preview-enhanced` 所使用的 University of Illinois/NCSA Open Source License 协议。
-
 ## 快速开始
 
 ### 安装
@@ -76,6 +70,12 @@ qlmanage -p test-sample.md
 ```
 
 或者直接在 Finder 中选中任意 `.md` 文件并按空格键 (QuickLook快捷键)。
+
+## 致谢
+
+本项目在很大程度上受到 Yiyi Wang (shd101wyy) 创建的 [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced) 的启发，并使用了其中的部分内容。我们衷心感谢作者的杰出工作。
+
+本项目遵守 `markdown-preview-enhanced` 所使用的 University of Illinois/NCSA Open Source License 协议。
 
 ## 许可协议
 

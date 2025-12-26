@@ -15,12 +15,6 @@ A macOS QuickLook extension to beautifully preview Markdown files with full rend
 - **Emoji**: Full emoji support with `:emoji_name:` syntax
 - **Theme**: Automatic light/dark mode based on system settings
 
-## Acknowledgements
-
-This project is significantly inspired by and utilizes portions of [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced), created by Yiyi Wang (shd101wyy). We sincerely thank the author for their excellent work.
-
-This project complies with the University of Illinois/NCSA Open Source License under which `markdown-preview-enhanced` is distributed.
-
 ## Quick Start
 
 ### Installation
@@ -76,6 +70,12 @@ qlmanage -p test-sample.md
 ```
 
 Or simply select any `.md` file in Finder and press Space (QuickLook shortcut).
+
+## Acknowledgements
+
+This project is significantly inspired by and utilizes portions of [markdown-preview-enhanced](https://github.com/shd101wyy/markdown-preview-enhanced), created by Yiyi Wang (shd101wyy). We sincerely thank the author for their excellent work.
+
+This project complies with the University of Illinois/NCSA Open Source License under which `markdown-preview-enhanced` is distributed.
 
 ## License
 
