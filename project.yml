@@ -1,4 +1,4 @@
-name: Markdown
+name: MarkdownPreviewEnhanced
 options:
   bundleIdPrefix: com.xykong
   deploymentTarget:
@@ -9,6 +9,7 @@ targets:
     platform: macOS
     sources: [Sources/Markdown]
     settings:
+      PRODUCT_NAME: "Markdown Preview Enhanced"
       PRODUCT_BUNDLE_IDENTIFIER: com.xykong.Markdown
       INFOPLIST_FILE: Sources/Markdown/Info.plist
       INFOPLIST_KEY_NSMainStoryboardFile: ""

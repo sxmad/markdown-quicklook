@@ -12,12 +12,12 @@ make app
 
 # 2. Copy to Applications
 echo "📋 Installing to /Applications..."
-rm -rf /Applications/MarkdownQuickLook.app
-cp -R ~/Library/Developer/Xcode/DerivedData/MarkdownQuickLook-*/Build/Products/Debug/MarkdownQuickLook.app /Applications/
+rm -rf "/Applications/Markdown Preview Enhanced.app"
+cp -R ~/Library/Developer/Xcode/DerivedData/MarkdownPreviewEnhanced-*/Build/Products/Debug/Markdown\ Preview\ Enhanced.app /Applications/
 
 # 3. Register with LaunchServices
 echo "🔧 Registering with system..."
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/MarkdownQuickLook.app
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/Markdown Preview Enhanced.app"
 
 # 4. Reset QuickLook
 echo "🔄 Resetting QuickLook cache..."
@@ -30,11 +30,11 @@ echo ""
 echo "⚠️  IMPORTANT: To activate the QuickLook preview, you need to:"
 echo "   1. Right-click任意 .md 文件"
 echo "   2. 选择 '显示简介' (Get Info) 或按 ⌘+I"
-echo "   3. 在 '打开方式' (Open with:) 部分，选择 'MarkdownQuickLook.app'"
+echo "   3. 在 '打开方式' (Open with:) 部分，选择 'Markdown Preview Enhanced.app'"
 echo "   4. 点击 '全部更改...' (Change All...) 按钮"
 echo "   5. 点击 '继续' 确认"
 echo ""
-echo "💡 This sets MarkdownQuickLook as the default app for all .md files,"
+echo "💡 This sets Markdown Preview Enhanced as the default app for all .md files,"
 echo "   which is required for the QuickLook extension to work."
 echo ""
 echo "🧪 After setting the default app, test with: qlmanage -p test-sample.md"

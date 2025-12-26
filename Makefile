@@ -13,8 +13,8 @@ generate: build_renderer
 	@if [ ! -f .build_number ]; then echo 1 > .build_number; fi
 	@n=$$(cat .build_number); \
 	echo "Current Build Number: $$n"; \
-	rm -rf Markdown.xcodeproj; \
+	rm -rf MarkdownPreviewEnhanced.xcodeproj; \
 	MARKETING_VERSION=1.0 CURRENT_PROJECT_VERSION=$$n xcodegen generate
 
 app: generate
-	xcodebuild -project Markdown.xcodeproj -scheme Markdown -destination 'platform=macOS' build
+	xcodebuild -project MarkdownPreviewEnhanced.xcodeproj -scheme Markdown -destination 'platform=macOS' build

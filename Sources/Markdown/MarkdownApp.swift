@@ -5,7 +5,7 @@ struct MarkdownApp: App {
     var body: some Scene {
         WindowGroup {
             VStack {
-                Text("Markdown Host App")
+                Text("Markdown Preview Enhanced for macOS Host App")
                     .font(.headline)
                     .padding()
                 Text("This app hosts the Quick Look extension.")
