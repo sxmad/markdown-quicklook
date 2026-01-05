@@ -37,7 +37,13 @@ struct MarkdownWebView: NSViewRepresentable {
         
         if let url = bundleURL {
             let dir = url.deletingLastPathComponent()
-            webView.loadFileURL(url, allowingReadAccessTo: dir)
+            do {
+                let htmlContent = try String(contentsOf: url, encoding: .utf8)
+                webView.loadHTMLString(htmlContent, baseURL: dir)
+            } catch {
+                os_log("Failed to read index.html: %{public}@", log: coordinator.logger, type: .error, error.localizedDescription)
+                webView.loadFileURL(url, allowingReadAccessTo: dir)
+            }
         }
         
         return webView
@@ -48,7 +54,7 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
-        private let logger = OSLog(subsystem: "com.markdownquicklook.app", category: "MarkdownWebView")
+        let logger = OSLog(subsystem: "com.markdownquicklook.app", category: "MarkdownWebView")
         
         func render(webView: WKWebView, content: String, fileURL: URL?) {
             let checkJs = "typeof window.renderMarkdown"
