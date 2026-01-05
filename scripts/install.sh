@@ -3,6 +3,10 @@
 # Markdown QuickLook Installation Script
 set -e
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$DIR/.."
+cd "$PROJECT_ROOT"
+
 CONFIGURATION=${1:-Release}
 
 echo "🚀 Installing Markdown QuickLook ($CONFIGURATION configuration)..."
