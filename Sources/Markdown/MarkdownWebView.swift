@@ -43,7 +43,7 @@ struct MarkdownWebView: NSViewRepresentable {
         webConfiguration.preferences.setValue(true, forKey: "developerExtrasEnabled")
         #endif
 
-        let webView = WKWebView(frame: .zero, configuration: webConfiguration)
+        let webView = ResizableWKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = coordinator
         
         var bundleURL: URL?
@@ -167,29 +167,30 @@ class ResizableWKWebView: WKWebView {
         
         if let screen = window.screen {
             let screenFrame = screen.visibleFrame
-            let targetWidth = screenFrame.width * 0.5
-            let targetHeight = screenFrame.height * 0.8
+            
+            let targetHeight = screenFrame.height * 0.85
+            
+            let idealWidth = min(screenFrame.width * 0.55, 1200)
+            let targetWidth = max(idealWidth, 800)
+            
+            let finalWidth = min(targetWidth, screenFrame.width)
+            let finalHeight = min(targetHeight, screenFrame.height)
+            
+            let x = screenFrame.origin.x + (screenFrame.width - finalWidth) / 2
+            
+            let y = screenFrame.origin.y + (screenFrame.height * 0.05)
             
             let currentFrame = window.frame
             
-            let minWidth: CGFloat = 800
-            let minHeight: CGFloat = 600
-            
-            let finalWidth = max(targetWidth, minWidth)
-            let finalHeight = max(targetHeight, minHeight)
-            
-            if currentFrame.width < finalWidth * 0.8 || currentFrame.height < finalHeight * 0.8 {
-                let x = screenFrame.origin.x + (screenFrame.width - finalWidth) / 2
-                let y = screenFrame.origin.y + (screenFrame.height - finalHeight) / 2
-                
+            if currentFrame.width < finalWidth * 0.9 || currentFrame.height < finalHeight * 0.9 {
                 let newFrame = NSRect(x: x, y: y, width: finalWidth, height: finalHeight)
                 window.setFrame(newFrame, display: true, animate: true)
-                
-                window.minSize = NSSize(width: minWidth, height: minHeight)
+                window.minSize = NSSize(width: 800, height: 600)
             } else {
-                 window.minSize = NSSize(width: minWidth, height: minHeight)
+                 window.minSize = NSSize(width: 800, height: 600)
             }
         }
         hasSetInitialSize = true
     }
 }
+
