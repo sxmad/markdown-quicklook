@@ -3,17 +3,38 @@
 # Markdown QuickLook Installation Script
 set -e
 
-echo "🚀 Installing Markdown QuickLook..."
+CONFIGURATION=${1:-Release}
+
+echo "🚀 Installing Markdown QuickLook ($CONFIGURATION configuration)..."
 echo ""
 
 # 1. Build the app
 echo "📦 Building application..."
-make app
+make app CONFIGURATION="$CONFIGURATION"
 
 # 2. Copy to Applications
+echo "🔍 Locating built application..."
+APP_PATH=""
+
+for path in ~/Library/Developer/Xcode/DerivedData/MarkdownPreviewEnhanced-*/Build/Products/"$CONFIGURATION"/"Markdown Preview Enhanced.app"; do
+    if [ -d "$path" ]; then
+        if [ -z "$APP_PATH" ] || [ "$path" -nt "$APP_PATH" ]; then
+            APP_PATH="$path"
+        fi
+    fi
+done
+
+if [ -z "$APP_PATH" ]; then
+    echo "❌ Error: Could not find built application in DerivedData."
+    echo "   Expected path: .../Build/Products/$CONFIGURATION/Markdown Preview Enhanced.app"
+    echo "   Please check if the build succeeded."
+    exit 1
+fi
+
+echo "📋 Found app at: $APP_PATH"
 echo "📋 Installing to /Applications..."
 rm -rf "/Applications/Markdown Preview Enhanced.app"
-cp -R ~/Library/Developer/Xcode/DerivedData/MarkdownPreviewEnhanced-*/Build/Products/Debug/Markdown\ Preview\ Enhanced.app /Applications/
+cp -R "$APP_PATH" /Applications/
 
 # 3. Register with LaunchServices
 echo "🔧 Registering with system..."

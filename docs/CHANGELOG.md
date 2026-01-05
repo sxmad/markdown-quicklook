@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+- **Installation**: Updated `install.sh` to build `Release` configuration by default and robustly locate the built application in DerivedData.
+- **Host App**: Improved `index.html` resource discovery logic to fallback to multiple directories.
+
+### Fixed
+- **Stability**: Added auto-reload recovery when WebView WebContent process terminates.
+- **Security**: Added missing entitlements (Network Client, JIT, Printing, Downloads) to support WebView features and stability.
+
 ### Added
 - **Host App Browser**: The main app now functions as a standalone Markdown viewer/editor (Read-Only mode).
   - Supports opening local `.md` files via Finder or File > Open.

@@ -244,6 +244,11 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         os_log("🔴 WebView didFailProvisionalNavigation: %{public}@", log: logger, type: .error, error.localizedDescription)
     }
+
+    public func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        os_log("🔴 WebContent process terminated! Attempting reload...", log: logger, type: .error)
+        webView.reload()
+    }
     
     // MARK: - WKScriptMessageHandler
     

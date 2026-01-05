@@ -46,7 +46,14 @@ struct MarkdownWebView: NSViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = coordinator
         
-        var bundleURL: URL? = ResourceLoader.findIndexHtml()
+        var bundleURL: URL?
+        if let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "WebRenderer") {
+            bundleURL = url
+        } else if let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "dist") {
+            bundleURL = url
+        } else {
+            bundleURL = Bundle.main.url(forResource: "index", withExtension: "html")
+        }
         
         if let url = bundleURL {
             let dir = url.deletingLastPathComponent()
@@ -120,7 +127,8 @@ struct MarkdownWebView: NSViewRepresentable {
         }
         
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-            os_log("WebView WebContent process terminated", log: logger, type: .error)
+            os_log("🔴 WebView WebContent process terminated! Attempting reload...", log: logger, type: .error)
+            webView.reload()
         }
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {

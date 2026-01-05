@@ -17,6 +17,18 @@
     <!-- Allow network access for WebView -->
     <key>com.apple.security.network.client</key>
     <true/>
+
+    <!-- Allow JIT (Recommended for WebView performance/stability) -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    
+    <!-- Allow printing (WebView often tries to access print services) -->
+    <key>com.apple.security.print</key>
+    <true/>
+
+    <!-- Allow access to downloads (common read location) -->
+    <key>com.apple.security.files.downloads.read-only</key>
+    <true/>
 </dict>
 </plist>
 
