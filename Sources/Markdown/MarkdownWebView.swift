@@ -156,3 +156,40 @@ struct MarkdownWebView: NSViewRepresentable {
         }
     }
 }
+
+class ResizableWKWebView: WKWebView {
+    private var hasSetInitialSize = false
+    
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        
+        guard let window = self.window, !hasSetInitialSize else { return }
+        
+        if let screen = window.screen {
+            let screenFrame = screen.visibleFrame
+            let targetWidth = screenFrame.width * 0.5
+            let targetHeight = screenFrame.height * 0.8
+            
+            let currentFrame = window.frame
+            
+            let minWidth: CGFloat = 800
+            let minHeight: CGFloat = 600
+            
+            let finalWidth = max(targetWidth, minWidth)
+            let finalHeight = max(targetHeight, minHeight)
+            
+            if currentFrame.width < finalWidth * 0.8 || currentFrame.height < finalHeight * 0.8 {
+                let x = screenFrame.origin.x + (screenFrame.width - finalWidth) / 2
+                let y = screenFrame.origin.y + (screenFrame.height - finalHeight) / 2
+                
+                let newFrame = NSRect(x: x, y: y, width: finalWidth, height: finalHeight)
+                window.setFrame(newFrame, display: true, animate: true)
+                
+                window.minSize = NSSize(width: minWidth, height: minHeight)
+            } else {
+                 window.minSize = NSSize(width: minWidth, height: minHeight)
+            }
+        }
+        hasSetInitialSize = true
+    }
+}
