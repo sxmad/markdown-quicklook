@@ -27,9 +27,19 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
     
     public override func loadView() {
         os_log("🔵 loadView called", log: logger, type: .debug)
-        // Create the main view programmatically with a default size
-        self.view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 200))
+        
+        let screen = NSScreen.main ?? NSScreen.screens.first
+        let screenFrame = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1200, height: 800)
+        
+        let width = screenFrame.width * 0.5
+        let height = screenFrame.height * 0.8
+        
+        os_log("🔵 Setting preferred size to: %.0f x %.0f", log: logger, type: .debug, width, height)
+
+        self.view = NSView(frame: NSRect(x: 0, y: 0, width: width, height: height))
         self.view.autoresizingMask = [.width, .height]
+        
+        self.preferredContentSize = NSSize(width: width, height: height)
     }
 
     public override func viewDidLoad() {
