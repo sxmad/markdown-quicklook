@@ -8,6 +8,7 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
     var statusLabel: NSTextField!
     var webView: WKWebView!
     var pendingMarkdown: String?
+    var currentURL: URL?
     var isWebViewLoaded = false
     
     // Create a custom log object for easy filtering in Console.app
@@ -57,6 +58,7 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         
         // Initialize WebView
         let webConfiguration = WKWebViewConfiguration()
+        webConfiguration.setURLSchemeHandler(LocalSchemeHandler(), forURLScheme: "local-resource")
         
         // Enable developer extras for inspection
         // webConfiguration.preferences.setValue(true, forKey: "developerExtras")
@@ -148,6 +150,7 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
     public func preparePreviewOfFile(at url: URL, completionHandler handler: @escaping (Error?) -> Void) {
         
         os_log("🔵 preparePreviewOfFile called for: %{public}@", log: logger, type: .default, url.path)
+        self.currentURL = url
         
         // Update label to show we received the file
         DispatchQueue.main.async {
@@ -186,6 +189,15 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         // Check existence of renderMarkdown
         let checkJs = "typeof window.renderMarkdown"
         
+        var baseUrlOption = ""
+        if let url = self.currentURL {
+            let dir = url.deletingLastPathComponent().path
+            let escapedDir = dir
+                .replacingOccurrences(of: "\\", with: "\\\\")
+                .replacingOccurrences(of: "\"", with: "\\\"")
+            baseUrlOption = ", { baseUrl: \"\(escapedDir)\" }"
+        }
+        
         webView.evaluateJavaScript(checkJs) { (result, error) in
             if let type = result as? String, type == "function" {
                 os_log("🟢 renderMarkdown is ready", log: self.logger, type: .debug)
@@ -194,7 +206,7 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
                 // We use a try-catch block in JS to ensure we catch any internal errors and log them
                 let callJs = """
                 try {
-                    window.renderMarkdown("\(escapedContent)");
+                    window.renderMarkdown("\(escapedContent)"\(baseUrlOption));
                     "success"
                 } catch(e) {
                     "error: " + e.toString()

@@ -97,7 +97,11 @@ try {
             
             if (!isAbsolute && env && env.baseUrl) {
                  const base = env.baseUrl.endsWith('/') ? env.baseUrl : env.baseUrl + '/';
-                 token.attrs[srcIndex][1] = "file://" + base + src;
+                 let cleanSrc = src;
+                 if (cleanSrc.startsWith('./')) {
+                     cleanSrc = cleanSrc.substring(2);
+                 }
+                 token.attrs[srcIndex][1] = "local-resource://" + base + cleanSrc;
             }
         }
         return defaultImageRender(tokens, idx, options, env, self);

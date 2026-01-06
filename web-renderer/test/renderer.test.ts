@@ -41,4 +41,18 @@ graph TD;
         querySelector: '.mermaid'
     });
   });
+
+  test('should rewrite relative image paths using baseUrl', () => {
+    const markdown = '![img](./pic.png)';
+    
+    // Execution
+    window.renderMarkdown(markdown, { baseUrl: '/Users/me/docs' });
+
+    // Verification
+    const preview = document.getElementById('markdown-preview');
+    const img = preview?.querySelector('img');
+    expect(img).toBeTruthy();
+    // Expect local-resource scheme and clean path
+    expect(img?.getAttribute('src')).toBe('local-resource:///Users/me/docs/pic.png');
+  });
 });
