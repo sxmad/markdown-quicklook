@@ -217,14 +217,26 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         // Check existence of renderMarkdown
         let checkJs = "typeof window.renderMarkdown"
         
-        var baseUrlOption = ""
+        var optionsParts: [String] = []
+        
         if let url = self.currentURL {
             let dir = url.deletingLastPathComponent().path
             let escapedDir = dir
                 .replacingOccurrences(of: "\\", with: "\\\\")
                 .replacingOccurrences(of: "\"", with: "\\\"")
-            baseUrlOption = ", { baseUrl: \"\(escapedDir)\" }"
+            optionsParts.append("baseUrl: \"\(escapedDir)\"")
         }
+        
+        let appearanceName = self.view.effectiveAppearance.name
+        var theme = "system"
+        if appearanceName == .darkAqua || appearanceName == .vibrantDark || appearanceName == .accessibilityHighContrastDarkAqua || appearanceName == .accessibilityHighContrastVibrantDark {
+            theme = "dark"
+        } else if appearanceName == .aqua || appearanceName == .vibrantLight || appearanceName == .accessibilityHighContrastAqua || appearanceName == .accessibilityHighContrastVibrantLight {
+            theme = "light"
+        }
+        optionsParts.append("theme: \"\(theme)\"")
+        
+        let optionsString = "{ " + optionsParts.joined(separator: ", ") + " }"
         
         webView.evaluateJavaScript(checkJs) { (result, error) in
             if let type = result as? String, type == "function" {
@@ -234,7 +246,7 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
                 // We use a try-catch block in JS to ensure we catch any internal errors and log them
                 let callJs = """
                 try {
-                    window.renderMarkdown("\(escapedContent)"\(baseUrlOption));
+                    window.renderMarkdown("\(escapedContent)", \(optionsString));
                     "success"
                 } catch(e) {
                     "error: " + e.toString()

@@ -104,11 +104,25 @@ struct MarkdownWebView: NSViewRepresentable {
                 .replacingOccurrences(of: "\n", with: "\\n")
                 .replacingOccurrences(of: "\r", with: "\\r")
             
-            var options = "{}"
+            var optionsParts: [String] = []
+            
             if let url = fileURL {
                 let baseUrlString = url.deletingLastPathComponent().path
-                options = "{ \"baseUrl\": \"\(baseUrlString)\" }"
+                let escapedBaseUrl = baseUrlString.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+                optionsParts.append("\"baseUrl\": \"\(escapedBaseUrl)\"")
             }
+            
+            let appearanceName = webView.effectiveAppearance.name
+            var theme = "system"
+            if appearanceName == .darkAqua || appearanceName == .vibrantDark || appearanceName == .accessibilityHighContrastDarkAqua || appearanceName == .accessibilityHighContrastVibrantDark {
+                theme = "dark"
+            } else if appearanceName == .aqua || appearanceName == .vibrantLight || appearanceName == .accessibilityHighContrastAqua || appearanceName == .accessibilityHighContrastVibrantLight {
+                theme = "light"
+            }
+            
+            optionsParts.append("\"theme\": \"\(theme)\"")
+            
+            let options = "{ " + optionsParts.joined(separator: ", ") + " }"
             
             let js = "window.renderMarkdown(\"\(escapedContent)\", \(options));"
             

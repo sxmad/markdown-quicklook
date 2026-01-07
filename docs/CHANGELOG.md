@@ -5,6 +5,12 @@
 ### Changed
 - **Build System**: Optimized build logs for `make install`, `make app`, and `make generate`. Now uses minimal output mode (warnings & errors only) to reduce terminal noise.
 - **Appearance**: Changed default appearance mode to **Light** (previously followed system settings).
+- **Appearance Sync**: Implemented "Perfect Dark Mode Sync" to eliminate white flashes and code block theme mismatches.
+  - Added adaptive CSS (`highlight-adaptive.css`) for instant code block theme switching.
+  - Updated `MarkdownWebView` (Swift) and `web-renderer` (TS) to pass explicit theme parameters for Mermaid.js support.
+- **Appearance Sync**: Implemented "Perfect Dark Mode Sync" to eliminate white flashes and code block theme mismatches.
+  - Added adaptive CSS (`highlight-adaptive.css`) for instant code block theme switching.
+  - Updated `MarkdownWebView` (Swift) and `web-renderer` (TS) to pass explicit theme parameters for Mermaid.js support.
 - **Installation**: Updated `install.sh` to build `Release` configuration by default and robustly locate the built application in DerivedData.
 - **Host App**: Improved `index.html` resource discovery logic to fallback to multiple directories.
 

@@ -75,4 +75,6 @@ Current issue: Native/Web boundary feels "rough" (flickering, broken images).
 1.  **Local Image Sandbox** (High Impact, Fixes broken functionality)
 2.  **Mermaid Lazy Loading** (High Impact, Fixes startup time)
 3.  **Large File Truncation** (Medium Impact, Prevents crashes)
-4.  **Dark Mode Sync** (Medium Impact, Polish)
+4.  **Dark Mode Sync** (Completed 2026-01-07) - Implemented adaptive CSS and explicit theme passing.
+5.  **Render Stability (Mermaid FOUC)** (Medium Impact, Polish) - Next Priority
+6.  **State Persistence** (Medium Impact, User Convenience)

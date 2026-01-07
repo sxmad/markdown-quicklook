@@ -21,7 +21,7 @@ window.onerror = function(message, source, lineno, colno, error) {
 };
 
 import 'github-markdown-css/github-markdown.css';
-import 'highlight.js/styles/github.css';
+import './styles/highlight-adaptive.css';
 import 'katex/dist/katex.min.css';
 
 import MarkdownIt from 'markdown-it';
@@ -103,17 +103,26 @@ try {
 // Define global interface for window
 declare global {
     interface Window {
-        renderMarkdown: (text: string, options?: { baseUrl?: string }) => Promise<void>;
+        renderMarkdown: (text: string, options?: { baseUrl?: string, theme?: string }) => Promise<void>;
     }
 }
 
 // Render function called by Swift
-window.renderMarkdown = async function (text: string, options: { baseUrl?: string } = {}) {
+window.renderMarkdown = async function (text: string, options: { baseUrl?: string, theme?: string } = {}) {
     const outputDiv = document.getElementById('markdown-preview');
     if (!outputDiv) {
         logToSwift("JS Error: markdown-preview element not found");
         return;
     }
+
+    let currentTheme = options.theme || 'default';
+    if (currentTheme === 'system') {
+        currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default';
+    } else if (currentTheme === 'light') {
+        currentTheme = 'default';
+    }
+    
+    const mermaidTheme = currentTheme === 'dark' ? 'dark' : 'default';
 
     try {
         // 1. Render Markdown to HTML
@@ -144,7 +153,7 @@ window.renderMarkdown = async function (text: string, options: { baseUrl?: strin
                 const mermaid = mermaidModule.default;
                 mermaid.initialize({
                     startOnLoad: false,
-                    theme: 'default'
+                    theme: mermaidTheme as any
                 });
                 await mermaid.run({
                     querySelector: '.mermaid'
