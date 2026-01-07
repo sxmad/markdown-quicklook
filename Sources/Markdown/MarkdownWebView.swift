@@ -59,6 +59,7 @@ struct MarkdownWebView: NSViewRepresentable {
         }
         
         if let url = bundleURL {
+            // Ensure read access to the directory containing index.html and assets
             let dir = url.deletingLastPathComponent()
             os_log("Loading HTML from: %{public}@", log: coordinator.logger, type: .debug, url.path)
             webView.loadFileURL(url, allowingReadAccessTo: dir)

@@ -95,9 +95,14 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         }
         
         if let url = bundleURL {
+            // When loading fileURL, we need to allow read access to the directory containing assets
+            // bundleURL points to index.html
+            // The assets are in ./assets/ relative to index.html
+            // So we need read access to the parent directory of index.html
             let dir = url.deletingLastPathComponent()
             os_log("🔵 Loading HTML from bundle: %{public}@", log: logger, type: .default, url.path)
             
+            // Critical: Ensure we allow read access to the directory so that relative paths like ./assets/script.js work
             webView.loadFileURL(url, allowingReadAccessTo: dir)
         } else {
             os_log("🔴 Failed to find index.html in bundle", log: logger, type: .error)

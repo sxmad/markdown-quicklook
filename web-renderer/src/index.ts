@@ -20,6 +20,8 @@ window.onerror = function(message, source, lineno, colno, error) {
     logToSwift(errorMsg);
 };
 
+logToSwift("JS: index.ts loaded, starting execution...");
+
 import 'github-markdown-css/github-markdown.css';
 import './styles/highlight-adaptive.css';
 import 'katex/dist/katex.min.css';
