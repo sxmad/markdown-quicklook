@@ -207,24 +207,21 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         
         os_log("🔵 renderPendingMarkdown called with content length: %d", log: logger, type: .debug, content.count)
         
-        // Escape special characters for JavaScript string
-        let escapedContent = content
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-            .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: "\r", with: "\\r")
+        guard let contentData = try? JSONSerialization.data(withJSONObject: [content], options: []),
+              let contentJsonArray = String(data: contentData, encoding: .utf8) else {
+            os_log("🔴 Failed to encode content to JSON", log: self.logger, type: .error)
+            return
+        }
         
-        // Check existence of renderMarkdown
+        let safeContentArg = String(contentJsonArray.dropFirst().dropLast())
+        
         let checkJs = "typeof window.renderMarkdown"
         
-        var optionsParts: [String] = []
+        var options: [String: String] = [:]
         
         if let url = self.currentURL {
             let dir = url.deletingLastPathComponent().path
-            let escapedDir = dir
-                .replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "\"", with: "\\\"")
-            optionsParts.append("baseUrl: \"\(escapedDir)\"")
+            options["baseUrl"] = dir
         }
         
         let appearanceName = self.view.effectiveAppearance.name
@@ -234,19 +231,21 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         } else if appearanceName == .aqua || appearanceName == .vibrantLight || appearanceName == .accessibilityHighContrastAqua || appearanceName == .accessibilityHighContrastVibrantLight {
             theme = "light"
         }
-        optionsParts.append("theme: \"\(theme)\"")
+        options["theme"] = theme
         
-        let optionsString = "{ " + optionsParts.joined(separator: ", ") + " }"
+        guard let optionsData = try? JSONSerialization.data(withJSONObject: options, options: []),
+              let optionsJson = String(data: optionsData, encoding: .utf8) else {
+            os_log("🔴 Failed to encode options to JSON", log: self.logger, type: .error)
+            return
+        }
         
         webView.evaluateJavaScript(checkJs) { (result, error) in
             if let type = result as? String, type == "function" {
                 os_log("🟢 renderMarkdown is ready", log: self.logger, type: .debug)
                 
-                // Call it
-                // We use a try-catch block in JS to ensure we catch any internal errors and log them
                 let callJs = """
                 try {
-                    window.renderMarkdown("\(escapedContent)", \(optionsString));
+                    window.renderMarkdown(\(safeContentArg), \(optionsJson));
                     "success"
                 } catch(e) {
                     "error: " + e.toString()
@@ -262,17 +261,13 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
                 }
                 
             } else {
-                // Not ready yet
                 os_log("🟡 renderMarkdown not ready (type: %{public}@), retrying in 0.2s...", log: self.logger, type: .debug, String(describing: result))
                 
-                // Retry limit?
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     self.renderPendingMarkdown()
                 }
             }
         }
-        
-        // Do not clear pendingMarkdown yet as we might retry
     }
     
     // MARK: - WKNavigationDelegate

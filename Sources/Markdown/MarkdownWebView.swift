@@ -98,18 +98,20 @@ struct MarkdownWebView: NSViewRepresentable {
         }
         
         private func executeRender(webView: WKWebView, content: String, fileURL: URL?) {
-            let escapedContent = content
-                .replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "\"", with: "\\\"")
-                .replacingOccurrences(of: "\n", with: "\\n")
-                .replacingOccurrences(of: "\r", with: "\\r")
+            guard let contentData = try? JSONSerialization.data(withJSONObject: [content], options: []),
+                  let contentJsonArray = String(data: contentData, encoding: .utf8) else {
+                os_log("Failed to encode content", log: logger, type: .error)
+                return
+            }
             
-            var optionsParts: [String] = []
+
+            let safeContentArg = String(contentJsonArray.dropFirst().dropLast())
+            
+            var options: [String: String] = [:]
             
             if let url = fileURL {
                 let baseUrlString = url.deletingLastPathComponent().path
-                let escapedBaseUrl = baseUrlString.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
-                optionsParts.append("\"baseUrl\": \"\(escapedBaseUrl)\"")
+                options["baseUrl"] = baseUrlString
             }
             
             let appearanceName = webView.effectiveAppearance.name
@@ -119,12 +121,15 @@ struct MarkdownWebView: NSViewRepresentable {
             } else if appearanceName == .aqua || appearanceName == .vibrantLight || appearanceName == .accessibilityHighContrastAqua || appearanceName == .accessibilityHighContrastVibrantLight {
                 theme = "light"
             }
+            options["theme"] = theme
             
-            optionsParts.append("\"theme\": \"\(theme)\"")
+            guard let optionsData = try? JSONSerialization.data(withJSONObject: options, options: []),
+                  let optionsJson = String(data: optionsData, encoding: .utf8) else {
+                os_log("Failed to encode options", log: logger, type: .error)
+                return
+            }
             
-            let options = "{ " + optionsParts.joined(separator: ", ") + " }"
-            
-            let js = "window.renderMarkdown(\"\(escapedContent)\", \(options));"
+            let js = "window.renderMarkdown(\(safeContentArg), \(optionsJson));"
             
             webView.evaluateJavaScript(js) { [weak self] _, error in
                 if let error = error {
