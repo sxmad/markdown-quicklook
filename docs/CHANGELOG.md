@@ -16,6 +16,7 @@
 - **Host App**: Improved `index.html` resource discovery logic to fallback to multiple directories.
 
 ### Fixed
+- **QuickLook**: Fixed a window resizing bug where the preview window would shrink on every launch. Added logic to ignore initial system-imposed constraints.
 - **Renderer**: Switched from Webpack/Vite chunked build to **Vite SingleFile** build. This fixes the "White Screen" issue in QuickLook by inlining all JS/CSS/Font assets into a single `index.html`, avoiding CORS/file-access restrictions in the Sandbox.
 - **Preview Stability**: Enhanced the renderer handshake mechanism.
   - Increased timeout to 10 seconds.
@@ -26,6 +27,7 @@
 - **Security**: Added missing entitlements (Network Client, JIT, Printing, Downloads) to support WebView features and stability.
 
 ### Added
+- **Host App**: Implemented window size and position persistence. The application now remembers its last window frame across launches.
 - **Appearance Settings**: Added "View" > "Appearance" menu to switch between Light, Dark, and System modes.
 - **Host App Browser**: The main app now functions as a standalone Markdown viewer/editor (Read-Only mode).
   - Supports opening local `.md` files via Finder or File > Open.

@@ -32,6 +32,7 @@ public class AppearancePreference: ObservableObject {
     // Key for UserDefaults
     private let key = "preferredAppearanceMode"
     private let quickLookSizeKey = "quickLookWindowSize"
+    private let hostWindowFrameKey = "hostWindowFrame"
     
     // The App Group Identifier
     // IMPORTANT: You must enable "App Groups" in Xcode Signing & Capabilities for BOTH targets
@@ -47,6 +48,25 @@ public class AppearancePreference: ObservableObject {
         set {
             objectWillChange.send()
             store.set(newValue.rawValue, forKey: key)
+        }
+    }
+    
+    public var hostWindowFrame: CGRect? {
+        get {
+            guard let dict = store.dictionary(forKey: hostWindowFrameKey) else { return nil }
+            let x = dict["x"] as? Double ?? 0
+            let y = dict["y"] as? Double ?? 0
+            let w = dict["w"] as? Double ?? 0
+            let h = dict["h"] as? Double ?? 0
+            return CGRect(x: x, y: y, width: w, height: h)
+        }
+        set {
+            if let v = newValue {
+                store.set(["x": v.origin.x, "y": v.origin.y, "w": v.width, "h": v.height], forKey: hostWindowFrameKey)
+            } else {
+                store.removeObject(forKey: hostWindowFrameKey)
+            }
+            store.synchronize()
         }
     }
     

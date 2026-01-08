@@ -11,6 +11,7 @@ struct MarkdownApp: App {
                 .frame(minWidth: 800, idealWidth: 1000, maxWidth: .infinity,
                        minHeight: 600, idealHeight: 800, maxHeight: .infinity)
                 .environmentObject(preference)
+                .background(WindowAccessor())
         }
         .commands {
             CommandMenu("View") {
