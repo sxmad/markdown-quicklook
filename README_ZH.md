@@ -39,8 +39,8 @@ brew install --cask markdown-preview-enhanced
 git clone https://github.com/xykong/markdown-quicklook.git
 cd markdown-quicklook
 
-# 运行安装脚本
-./install.sh
+# 构建并安装
+make install
 ```
 
 这将执行以下操作：
@@ -60,6 +60,28 @@ cd markdown-quicklook
 5. 点击 **"继续"** 确认
 
 这将把 Markdown Preview Enhanced 设置为所有 `.md` 文件的默认应用程序，这是 macOS 使用 QuickLook 扩展的**必要条件**。
+
+### 🛑 常见问题："应用已损坏" 或 "无法验证开发者"
+
+由于本项目是开源软件，未购买 Apple 开发者证书进行公证，首次运行时 macOS Gatekeeper 可能会提示 **“Markdown Preview Enhanced.app 已损坏，无法打开”** 或 **“无法验证开发者”**。
+
+**方法 1: 命令行修复 (推荐)**
+
+在终端 (Terminal) 中运行以下命令以移除隔离属性：
+
+```bash
+xattr -cr "/Applications/Markdown Preview Enhanced.app"
+```
+
+**方法 2: 手动授权**
+
+1. 打开 **系统设置 (System Settings)** > **隐私与安全性 (Privacy & Security)**。
+2. 向下滚动到 **安全性 (Security)** 部分。
+3. 你应该会看到提示 "Markdown Preview Enhanced.app 已被阻止使用..."。
+4. 点击 **仍要打开 (Open Anyway)**。
+5. 输入密码确认。
+
+运行后即可正常打开应用。
 
 ### 测试
 

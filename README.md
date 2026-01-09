@@ -39,11 +39,11 @@ brew install --cask markdown-preview-enhanced
 git clone https://github.com/xykong/markdown-quicklook.git
 cd markdown-quicklook
 
-# Run installation script
-./install.sh
+# Build and Install
+make install
 ```
 
-This script will:
+This command will:
 1. Build the application with all dependencies
 2. Install it to `/Applications/Markdown Preview Enhanced.app`
 3. Register it with the system
@@ -60,6 +60,28 @@ This script will:
 5. Confirm by clicking **"Continue"**
 
 This sets Markdown Preview Enhanced as the default application for all `.md` files, which is **required** for macOS to use our QuickLook extension.
+
+### 🛑 Troubleshooting: "App is damaged" or "Unidentified Developer"
+
+Since this app is open-source and not notarized by Apple, you might see an error saying **"Markdown Preview Enhanced.app is damaged and can't be opened"** or **"cannot be opened because the developer cannot be verified"**.
+
+**Option 1: Command Line (Recommended)**
+
+Run the following command in Terminal to remove the quarantine attribute:
+
+```bash
+xattr -cr "/Applications/Markdown Preview Enhanced.app"
+```
+
+**Option 2: Manual Authorization**
+
+1. Go to **System Settings** > **Privacy & Security**.
+2. Scroll down to the **Security** section.
+3. You should see a message saying "Markdown Preview Enhanced.app was blocked...".
+4. Click **Open Anyway**.
+5. Enter your password to confirm.
+
+Then try opening the app again.
 
 ### Testing
 
