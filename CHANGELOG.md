@@ -2,9 +2,8 @@
 
 ## [Unreleased]
 
-## [1.1.61] - 2026-01-09
-
 ### Added
+- **App**: 支持 `--register-only` 启动参数。该参数允许应用在无界面模式下启动并立即退出，用于安装脚本触发 QuickLook 扩展注册。
 - **预览 (Preview)**: 实现了大文件截断机制。为了防止渲染过大文件导致 QuickLook 卡死，超过 500KB 的文件将只渲染前 500KB，并在底部显示截断警告。
 - **扩展 (Extension)**: 在 QuickLook 预览界面添加了悬浮的主题切换按钮，允许用户直接在预览中切换亮/暗模式。
 - **架构 (Architecture)**: 引入 App Groups 支持。重构了 `AppearancePreference`，使用 App Group 同步主应用和扩展之间的配置（如主题设置）。
