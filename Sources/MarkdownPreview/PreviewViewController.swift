@@ -25,6 +25,69 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
     
     private let maxPreviewSizeBytes: UInt64 = 500 * 1024 // 500KB limit
     
+    private func logScreenEnvironment(context: String) {
+        os_log("📊 [%{public}@] ===== SCREEN ENVIRONMENT =====", log: logger, type: .default, context)
+        
+        let allScreens = NSScreen.screens
+        os_log("📊 [%{public}@] Total screens: %d", log: logger, type: .default, context, allScreens.count)
+        
+        for (index, screen) in allScreens.enumerated() {
+            let frame = screen.frame
+            let visibleFrame = screen.visibleFrame
+            let scale = screen.backingScaleFactor
+            let isMain = (screen == NSScreen.main)
+            os_log("📊 [%{public}@] Screen[%d] isMain=%{public}@ frame=(%.0f,%.0f,%.0fx%.0f) visible=(%.0f,%.0f,%.0fx%.0f) scale=%.1f",
+                   log: logger, type: .default, context, index,
+                   isMain ? "YES" : "NO",
+                   frame.origin.x, frame.origin.y, frame.width, frame.height,
+                   visibleFrame.origin.x, visibleFrame.origin.y, visibleFrame.width, visibleFrame.height,
+                   scale)
+        }
+        
+        let mouseLocation = NSEvent.mouseLocation
+        var mouseScreenIndex = -1
+        for (index, screen) in allScreens.enumerated() {
+            if screen.frame.contains(mouseLocation) {
+                mouseScreenIndex = index
+                break
+            }
+        }
+        os_log("📊 [%{public}@] Mouse location=(%.0f,%.0f) onScreen[%d]",
+               log: logger, type: .default, context,
+               mouseLocation.x, mouseLocation.y, mouseScreenIndex)
+        
+        if let window = self.view.window {
+            let windowFrame = window.frame
+            let windowScreen = window.screen
+            var windowScreenIndex = -1
+            if let ws = windowScreen {
+                windowScreenIndex = allScreens.firstIndex(of: ws) ?? -1
+            }
+            os_log("📊 [%{public}@] Window frame=(%.0f,%.0f,%.0fx%.0f) onScreen[%d]",
+                   log: logger, type: .default, context,
+                   windowFrame.origin.x, windowFrame.origin.y, windowFrame.width, windowFrame.height,
+                   windowScreenIndex)
+        } else {
+            os_log("📊 [%{public}@] Window: nil", log: logger, type: .default, context)
+        }
+        
+        let viewFrame = self.view.frame
+        let preferredSize = self.preferredContentSize
+        os_log("📊 [%{public}@] View frame=(%.0f,%.0f,%.0fx%.0f) preferredContentSize=(%.0fx%.0f)",
+               log: logger, type: .default, context,
+               viewFrame.origin.x, viewFrame.origin.y, viewFrame.width, viewFrame.height,
+               preferredSize.width, preferredSize.height)
+        
+        if let savedSize = AppearancePreference.shared.quickLookSize {
+            os_log("📊 [%{public}@] Saved quickLookSize=(%.0fx%.0f)",
+                   log: logger, type: .default, context, savedSize.width, savedSize.height)
+        } else {
+            os_log("📊 [%{public}@] Saved quickLookSize=nil", log: logger, type: .default, context)
+        }
+        
+        os_log("📊 [%{public}@] ===== END SCREEN ENVIRONMENT =====", log: logger, type: .default, context)
+    }
+    
     public override init(nibName nibNameOrNil: NSNib.Name?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         os_log("🔵 init(nibName:bundle:) called", log: logger, type: .debug)
@@ -51,12 +114,21 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         self.view = NSView(frame: NSRect(x: 0, y: 0, width: width, height: height))
         self.view.autoresizingMask = [.width, .height]
         
+        logScreenEnvironment(context: "loadView-BEFORE")
+        
         if let savedSize = AppearancePreference.shared.quickLookSize {
-             os_log("🔵 Restoring saved size: %.0f x %.0f", log: logger, type: .debug, savedSize.width, savedSize.height)
-             self.preferredContentSize = NSSize(width: savedSize.width, height: savedSize.height)
+             let targetScreen = getTargetScreen()
+             let constrainedSize = constrainSizeToScreen(savedSize, screen: targetScreen)
+             os_log("🔵 Restoring saved size: %.0f x %.0f (constrained to %.0f x %.0f)",
+                    log: logger, type: .debug,
+                    savedSize.width, savedSize.height,
+                    constrainedSize.width, constrainedSize.height)
+             self.preferredContentSize = NSSize(width: constrainedSize.width, height: constrainedSize.height)
         } else {
              self.preferredContentSize = NSSize(width: width, height: height)
         }
+        
+        logScreenEnvironment(context: "loadView-AFTER")
     }
 
     public override func viewDidLoad() {
@@ -114,26 +186,65 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
     public override func viewDidLayout() {
         super.viewDidLayout()
         
-        guard isResizeTrackingEnabled else { return }
-        
         let size = self.view.frame.size
-        guard size.width > 200 && size.height > 200 else { return }
+        os_log("📊 [viewDidLayout] size=%.0fx%.0f trackingEnabled=%{public}@",
+               log: logger, type: .default,
+               size.width, size.height,
+               isResizeTrackingEnabled ? "YES" : "NO")
+        
+        guard isResizeTrackingEnabled else {
+            os_log("📊 [viewDidLayout] SKIPPED - tracking disabled", log: logger, type: .default)
+            return
+        }
+        
+        guard size.width > 200 && size.height > 200 else {
+            os_log("📊 [viewDidLayout] SKIPPED - size too small", log: logger, type: .default)
+            return
+        }
         
         self.currentSize = size
         
         saveSizeWorkItem?.cancel()
-        let item = DispatchWorkItem(block: {
+        let item = DispatchWorkItem(block: { [weak self] in
+            guard let self = self else { return }
+            os_log("📊 [viewDidLayout-SAVE] Saving size: %.0fx%.0f", log: self.logger, type: .default, size.width, size.height)
+            self.logScreenEnvironment(context: "viewDidLayout-SAVE")
             AppearancePreference.shared.quickLookSize = size
         })
         saveSizeWorkItem = item
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: item)
     }
     
+    public override func viewWillAppear() {
+        super.viewWillAppear()
+        logScreenEnvironment(context: "viewWillAppear")
+    }
+    
+    public override func viewDidAppear() {
+        super.viewDidAppear()
+        logScreenEnvironment(context: "viewDidAppear")
+    }
+    
     public override func viewWillDisappear() {
         super.viewWillDisappear()
+        logScreenEnvironment(context: "viewWillDisappear")
+        
+        os_log("📊 [viewWillDisappear] trackingEnabled=%{public}@ currentSize=%{public}@",
+               log: logger, type: .default,
+               isResizeTrackingEnabled ? "YES" : "NO",
+               currentSize != nil ? "\(currentSize!.width)x\(currentSize!.height)" : "nil")
+        
         if isResizeTrackingEnabled, let size = self.currentSize {
+            os_log("📊 [viewWillDisappear] Saving final size: %.0fx%.0f", log: logger, type: .default, size.width, size.height)
             AppearancePreference.shared.quickLookSize = size
         }
+        
+        os_log("📊 [viewWillDisappear] Disabling tracking NOW", log: logger, type: .default)
+        isResizeTrackingEnabled = false
+        saveSizeWorkItem?.cancel()
+        saveSizeWorkItem = nil
+        resizeTrackingWorkItem?.cancel()
+        resizeTrackingWorkItem = nil
     }
     
 
@@ -219,15 +330,25 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         os_log("🔵 preparePreviewOfFile called for: %{public}@", log: logger, type: .default, url.path)
         self.currentURL = url
         
+        logScreenEnvironment(context: "preparePreviewOfFile-ENTRY")
+        
         DispatchQueue.main.async {
+            self.logScreenEnvironment(context: "preparePreviewOfFile-ASYNC-START")
+            
             // Reset tracking to prevent capturing layout thrashing during display switching.
             // This is necessary because when QuickLook switches displays or reuses the view controller,
             // transient layout passes with incorrect sizes may occur.
             self.startResizeTracking()
             
             if let savedSize = AppearancePreference.shared.quickLookSize {
-                os_log("🔵 Re-applying saved size: %.0f x %.0f", log: self.logger, type: .debug, savedSize.width, savedSize.height)
-                self.preferredContentSize = NSSize(width: savedSize.width, height: savedSize.height)
+                let targetScreen = self.getTargetScreen()
+                let constrainedSize = self.constrainSizeToScreen(savedSize, screen: targetScreen)
+                os_log("🔵 Re-applying saved size: %.0f x %.0f (constrained to %.0f x %.0f)",
+                       log: self.logger, type: .debug,
+                       savedSize.width, savedSize.height,
+                       constrainedSize.width, constrainedSize.height)
+                self.preferredContentSize = NSSize(width: constrainedSize.width, height: constrainedSize.height)
+                self.logScreenEnvironment(context: "preparePreviewOfFile-AFTER-SET-SIZE")
             }
             
             AppearancePreference.shared.apply(to: self.view)
@@ -419,6 +540,46 @@ public class PreviewViewController: NSViewController, QLPreviewingController, WK
         
         resizeTrackingWorkItem = item
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: item)
+    }
+    
+    private func constrainSizeToScreen(_ size: CGSize, screen: NSScreen?) -> CGSize {
+        guard let screen = screen else { return size }
+        
+        let screenFrame = screen.visibleFrame
+        let maxWidth = screenFrame.width * 0.95
+        let maxHeight = screenFrame.height * 0.95
+        
+        if size.width <= maxWidth && size.height <= maxHeight {
+            return size
+        }
+        
+        let widthRatio = maxWidth / size.width
+        let heightRatio = maxHeight / size.height
+        let ratio = min(widthRatio, heightRatio)
+        
+        let constrainedSize = CGSize(width: size.width * ratio, height: size.height * ratio)
+        os_log("🔵 Constraining size from %.0fx%.0f to %.0fx%.0f for screen %.0fx%.0f",
+               log: logger, type: .debug,
+               size.width, size.height,
+               constrainedSize.width, constrainedSize.height,
+               screenFrame.width, screenFrame.height)
+        
+        return constrainedSize
+    }
+    
+    private func getTargetScreen() -> NSScreen? {
+        if let windowScreen = self.view.window?.screen {
+            return windowScreen
+        }
+        
+        let mouseLocation = NSEvent.mouseLocation
+        for screen in NSScreen.screens {
+            if screen.frame.contains(mouseLocation) {
+                return screen
+            }
+        }
+        
+        return NSScreen.main ?? NSScreen.screens.first
     }
     
     deinit {

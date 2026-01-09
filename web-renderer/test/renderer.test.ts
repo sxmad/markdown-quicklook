@@ -1,7 +1,6 @@
-// Mock mermaid before importing the source
 jest.mock('mermaid', () => ({
   initialize: jest.fn(),
-  run: jest.fn(),
+  render: jest.fn().mockResolvedValue({ svg: '<svg>mocked diagram</svg>' }),
 }));
 
 // We import the index file to trigger the side-effect of setting window.renderMarkdown
@@ -15,7 +14,7 @@ describe('Markdown Renderer', () => {
     jest.clearAllMocks();
   });
 
-  test('should render mermaid diagram using mermaid.run API', async () => {
+  test('should render mermaid diagram using mermaid.render API', async () => {
     const markdown = `
 # Title
 \`\`\`mermaid
@@ -24,22 +23,35 @@ graph TD;
 \`\`\`
     `;
 
-    // Execution
     await window.renderMarkdown(markdown);
 
-    // Verification
     const preview = document.getElementById('markdown-preview');
     expect(preview).toBeTruthy();
     
-    // Check if the mermaid block was transformed into a div.mermaid
     const mermaidDiv = preview?.querySelector('.mermaid');
     expect(mermaidDiv).toBeTruthy();
-    expect(mermaidDiv?.textContent).toContain('graph TD');
+    expect(mermaidDiv?.innerHTML).toContain('<svg>mocked diagram</svg>');
     
-    // Verify mermaid.run was called
-    expect(mermaid.run).toHaveBeenCalledWith({
-        querySelector: '.mermaid'
-    });
+    expect(mermaid.render).toHaveBeenCalled();
+  });
+
+  test('should display error message when mermaid syntax is invalid', async () => {
+    const mermaidMock = require('mermaid');
+    mermaidMock.render.mockRejectedValueOnce(new Error('Parse error on line 1'));
+
+    const markdown = `
+\`\`\`mermaid
+invalid syntax here
+\`\`\`
+    `;
+
+    await window.renderMarkdown(markdown);
+
+    const preview = document.getElementById('markdown-preview');
+    const errorDiv = preview?.querySelector('.mermaid-error');
+    expect(errorDiv).toBeTruthy();
+    expect(errorDiv?.textContent).toContain('Mermaid Syntax Error');
+    expect(errorDiv?.textContent).toContain('Parse error on line 1');
   });
 
   test('should rewrite relative image paths using baseUrl', async () => {

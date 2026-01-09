@@ -1,4 +1,14 @@
-// Helper to send logs to Swift
+function escapeHtml(text: string): string {
+    const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (char) => map[char]);
+}
+
 function logToSwift(message: string) {
     try {
         // @ts-ignore
@@ -161,11 +171,94 @@ window.renderMarkdown = async function (text: string, options: { baseUrl?: strin
                 const mermaid = mermaidModule.default;
                 mermaid.initialize({
                     startOnLoad: false,
-                    theme: mermaidTheme as any
+                    theme: mermaidTheme as any,
+                    suppressErrorRendering: true
                 });
-                await mermaid.run({
-                    querySelector: '.mermaid'
-                });
+                
+                // Render each mermaid block individually to capture per-block errors
+                const mermaidDivs = outputDiv.querySelectorAll('.mermaid');
+                for (const div of mermaidDivs) {
+                    const code = div.textContent || '';
+                    const id = div.id || `mermaid-${Date.now()}`;
+                    
+                    try {
+                        const { svg } = await mermaid.render(id + '-svg', code);
+                        div.innerHTML = svg;
+                    } catch (renderErr: any) {
+                        const errorMessage = renderErr?.message || String(renderErr);
+                        logToSwift(`JS Mermaid render error for ${id}: ${errorMessage}`);
+                        
+                        div.innerHTML = `
+                            <div class="mermaid-error" style="
+                                background-color: #fff5f5;
+                                border: 1px solid #feb2b2;
+                                border-radius: 6px;
+                                padding: 16px;
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+                            ">
+                                <div style="
+                                    color: #c53030;
+                                    font-weight: 600;
+                                    margin-bottom: 8px;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 6px;
+                                ">
+                                    <span style="font-size: 16px;">⚠️</span>
+                                    <span>Mermaid Syntax Error</span>
+                                </div>
+                                <pre style="
+                                    background-color: #fed7d7;
+                                    color: #742a2a;
+                                    padding: 12px;
+                                    border-radius: 4px;
+                                    overflow-x: auto;
+                                    font-size: 13px;
+                                    line-height: 1.5;
+                                    margin: 0 0 12px 0;
+                                    white-space: pre-wrap;
+                                    word-break: break-word;
+                                ">${escapeHtml(errorMessage)}</pre>
+                                <details style="margin-top: 8px;">
+                                    <summary style="
+                                        cursor: pointer;
+                                        color: #718096;
+                                        font-size: 12px;
+                                    ">Show source code</summary>
+                                    <pre style="
+                                        background-color: #f7fafc;
+                                        color: #2d3748;
+                                        padding: 12px;
+                                        border-radius: 4px;
+                                        margin-top: 8px;
+                                        overflow-x: auto;
+                                        font-size: 12px;
+                                        line-height: 1.4;
+                                        white-space: pre-wrap;
+                                        word-break: break-word;
+                                    ">${escapeHtml(code)}</pre>
+                                </details>
+                            </div>
+                        `;
+                        if (currentTheme === 'dark') {
+                            const errorDiv = div.querySelector('.mermaid-error') as HTMLElement;
+                            if (errorDiv) {
+                                errorDiv.style.backgroundColor = '#2d2020';
+                                errorDiv.style.borderColor = '#742a2a';
+                                const pre = errorDiv.querySelector('pre') as HTMLElement;
+                                if (pre) {
+                                    pre.style.backgroundColor = '#3d2020';
+                                    pre.style.color = '#feb2b2';
+                                }
+                                const details = errorDiv.querySelector('details pre') as HTMLElement;
+                                if (details) {
+                                    details.style.backgroundColor = '#1a202c';
+                                    details.style.color = '#e2e8f0';
+                                }
+                            }
+                        }
+                    }
+                }
             } catch (err) {
                  logToSwift("JS Error loading/running mermaid: " + err);
             }

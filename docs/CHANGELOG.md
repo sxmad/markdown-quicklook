@@ -3,6 +3,14 @@
 ## [Unreleased]
 
 ### Changed
+- **Renderer**: Improved Mermaid diagram rendering.
+  - Switched to per-block rendering to prevent one bad diagram from breaking all others.
+  - Added robust error handling: Invalid Mermaid syntax now displays a helpful error message with source code, instead of failing silently.
+  - Added Dark Mode support for error messages.
+- **Preview**: Enhanced window resizing logic.
+  - Added intelligent screen boundary constraints to prevent restored windows from being larger than the available screen space.
+  - Improved resize tracking lifecycle to prevent layout thrashing during view disappear.
+  - Added detailed environment logging for screen/window state debugging.
 - **Renderer**: Removed maximum width constraint (was 980px) to allow the preview content to fill the entire window width.
 - **Build System**: Optimized build logs for `make install`, `make app`, and `make generate`. Now uses minimal output mode (warnings & errors only) to reduce terminal noise.
 - **Appearance**: Changed default appearance mode to **Light** (previously followed system settings).
